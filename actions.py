@@ -34,9 +34,9 @@ async def run_add(chat_id, text):
         if len(parsed) == 2 and not is_valid_amount(parsed[1]):
             return constants.ERROR_PRECONDITION
         if len(parsed) == 2:
-            debtor[parsed[0].strip()] = float(parsed[1])
+            debtors[parsed[0].strip()] = float(parsed[1])
         else:
-            debtor[parsed[0].strip()] = -1
+            debtors[parsed[0].strip()] = -1
 
     update_time, trans_ref = await transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
