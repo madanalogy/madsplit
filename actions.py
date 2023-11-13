@@ -115,17 +115,17 @@ def run_settle(chat_id, text):
     balances = {}
     for trans_ref in transactions:
         transaction = trans_ref.to_dict()
-        if balances[transaction['payer']]:
+        if transaction['payer'] in balances:
             balances[transaction['payer']] += transaction['amount']
         else:
             balances[transaction['payer']] = transaction['amount']
         debtors = trans_ref.collection("debtors").stream()
         for debt_ref in debtors:
             debt = debt_ref.to_dict()
-            if balances[debt['name']]:
+            if debt['name'] in balances:
                 balances[debt['name']] -= debt['amount']
             else:
-                balances[debt['name']] = debt['amount']
+                balances[debt['name']] = -1 * debt['amount']
             debt_ref.delete()
         trans_ref.delete()
 
@@ -154,17 +154,17 @@ def run_settle(chat_id, text):
                 value = other
                 curr -= other
             value_str = "{:.2f}".format(round(value, 2))
-            if output[debtor]:
+            if debtor in output:
                 output[debtor] += f", Pay {creditor} ${value_str}"
             else:
                 output[debtor] = f"Pay {creditor} ${value_str}"
-            if output[creditor]:
+            if creditor in output:
                 output[creditor] += f", Get ${value_str} from {debtor}"
             else:
                 output[creditor] = f"Get ${value_str} from {debtor}"
     final = "Here's the final tally!\n"
     for person in output:
-        final += "\n" + output[person]
+        final += f"\n{person}: {output[person]}"
     
     return final
 
