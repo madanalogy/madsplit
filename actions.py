@@ -79,11 +79,15 @@ def run_list(chat_id):
 
 
 def run_detail(chat_id, text):
-    transactions = get_transactions(chat_id)
-    trans_id, to_get = get_at(transactions, text.strip())
-    if not trans_id:
+    print("Received detail index:", int(text))
+    if not text or int(text) < 1:
         return constants.ERROR_GENERIC
-    output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
+    transactions = get_transactions(chat_id)
+    trans_id, transaction = get_at(transactions, int(text))
+    print("Processed trans_id:", trans_id)
+    if trans_id == 0:
+        return constants.ERROR_SUM_MISMATCH
+    output = f"{transaction['name']}, {transaction['amount']}, {transaction['payer']}"
     debtors = transactions.document(trans_id).collection("debtors").stream()
     for debtor in debtors:
         curr = debtor.to_dict()
@@ -94,10 +98,12 @@ def run_detail(chat_id, text):
 
 
 def run_delete(chat_id, text):
-    transactions = get_transactions(chat_id)
-    trans_id, to_get = get_at(transactions, text.strip())
-    if not trans_id:
+    if not text or int(text) < 1:
         return constants.ERROR_GENERIC
+    transactions = get_transactions(chat_id)
+    trans_id, unused = get_at(transactions, int(text))
+    if trans_id == 0:
+        return constants.ERROR_SUM_MISMATCH
     debtors = transactions.document(trans_id).collection("debtors")
     debts_ptr = debtors.stream()
     for debtor in debts_ptr:
@@ -184,12 +190,10 @@ def is_valid_amount(value):
 
 
 def get_at(transactions, index):
-    if not index or not index.isnumeric() or int(index) < 1:
-        return None, None
-    sn = int(index)
     docs = transactions.order_by("timestamp").stream()
     counter = 1
     for doc in docs:
-        if index == counter:
+        if int(index) == counter:
             return doc.id, doc.to_dict()
         counter += 1
+    return 0, {}
