@@ -77,7 +77,7 @@ def run_list(chat_id, text):
     output = "SN. Name, Amount, Payer"
     counter = 1
     for transaction in parsed_transactions:
-        output += f"\n{counter}. {transaction.name}, {transaction.amount}, {transaction.payer}"
+        output += f"\n{counter}. {transaction['name']}, {transaction['amount']}, {transaction['payer']}"
         counter += 1
 
     return output
@@ -87,7 +87,7 @@ def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
     to_get = get_at(transactions, text.strip())
 
-    output = f"{to_get.name}, {to_get.amount}, {to_get.payer}"
+    output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
     debtors = transactions.document(to_get.id).collection("debtors")
     for debtor in debtors:
         output += f"\n{debtor.name}, {debtor.amount}"
@@ -112,11 +112,11 @@ def run_settle(chat_id, text):
     balances = {}
     for ref in trans_ptr:
         transaction = ref.to_dict()
-        balances[transaction.payer] += transaction.amount
+        balances[transaction.payer] += transaction['amount']
         debtors = transaction.collection("debtors")
         debts_ptr = debtors.stream()
         for debt in debts_ptr:
-            balances[debt.name] -= debt.amount
+            balances[debt['name']] -= debt['amount']
     print(balances)
     creditors = []
     debtors = []
