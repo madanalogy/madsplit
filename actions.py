@@ -132,6 +132,7 @@ def run_settle(chat_id, text):
                 balances[debt['name']] = -1 * debt['amount']
             debtors.document(debt_ref.id).delete()
         transactions.document(trans_ref.id).delete()
+    print(balances)
     if not balances:
         return constants.ERROR_EMPTY_LIST
 
