@@ -91,7 +91,8 @@ def run_detail(chat_id, text):
     output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
     debtors = transactions.document(id).collection("debtors").stream()
     for debtor in debtors:
-        output += f"\n{debtor.name}, {debtor.amount}"
+        curr = debtor.to_dict()
+        output += f"\n{curr.name}, {curr.amount}"
 
     return output
 
