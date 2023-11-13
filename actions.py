@@ -143,8 +143,8 @@ def run_settle(chat_id, text):
             creditorsq.append((person, balances[person]))
         elif balances[person] < 0:
             debtorsq.append((person, abs(balances[person])))
-    creditorsq.sort(key=lambda x, y : y, reverse=True)
-    debtorsq.sort(key=lambda x, y : y)
+    creditorsq.sort(key=lambda x: x[1], reverse=True)
+    debtorsq.sort(key=lambda y: y[1])
     debtorsq = deque(debtorsq)
 
     output = {}
