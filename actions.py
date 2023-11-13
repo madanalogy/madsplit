@@ -89,7 +89,7 @@ def run_detail(chat_id, text):
     id, to_get = get_at(transactions, text.strip())
 
     output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
-    debtors = transactions.document(id).collection("debtors")
+    debtors = transactions.document(id).collection("debtors").stream()
     for debtor in debtors:
         output += f"\n{debtor.name}, {debtor.amount}"
 
@@ -99,10 +99,9 @@ def run_detail(chat_id, text):
 def run_delete(chat_id, text):
     transactions = get_transactions(chat_id)
     id, to_get = get_at(transactions, text.strip())
-    debtors = transactions.document(id).collection("debtors")
-    docs = debtors.stream()
-    for doc in docs:
-        doc.delete()
+    debtors = transactions.document(id).collection("debtors").stream()
+    for debtor in debtors:
+        debtor.delete()
     transactions.document(id).delete()
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
@@ -114,28 +113,27 @@ def run_settle(chat_id, text):
     for ref in trans_ptr:
         transaction = ref.to_dict()
         balances[transaction.payer] += transaction['amount']
-        debtors = transaction.collection("debtors")
-        debts_ptr = debtors.stream()
-        for debt in debts_ptr:
+        debtors = transaction.collection("debtors").stream()
+        for debt in debtors:
             balances[debt['name']] -= debt['amount']
     print(balances)
-    creditors = deque()
-    debtors = deque()
+    creditorsq = deque()
+    debtorsq = deque()
     for person in balances:
         if balances[person] > 0:
-            creditors.append((person, balances[person]))
+            creditorsq.append((person, balances[person]))
         elif balances < 0:
-            debtors.append((person, abs(balances[person])))
-    creditors.sort(key=lambda x, y : y, reverse=True)
-    debtors.sort(key=lambda x, y : y, reverse=True)
+            debtorsq.append((person, abs(balances[person])))
+    creditorsq.sort(key=lambda x, y : y, reverse=True)
+    debtorsq.sort(key=lambda x, y : y, reverse=True)
     output = {}
-    for creditor, amount in creditors:
+    for creditor, amount in creditorsq:
         curr = amount
         while curr > 0:
-            debtor, other = debtors.popleft()
+            debtor, other = debtorsq.popleft()
             if other >= curr:
                 value = curr
-                debtors.appendleft(debtor, other - curr)
+                debtorsq.appendleft(debtor, other - curr)
                 curr = 0
             else:
                 value = other
