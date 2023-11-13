@@ -48,10 +48,6 @@ async def run_add(chat_id, text):
     return "Added successfully! Use /list if you want to see all pending transactions"
 
 
-def get_time(transaction):
-    return transaction.update_time
-
-
 async def run_list(chat_id, text):
     transactions = get_transactions(chat_id)
     docs = transactions.stream()
@@ -60,7 +56,7 @@ async def run_list(chat_id, text):
         parsed_transactions.append(doc)
     if len(parsed_transactions) == 0:
         return constants.ERROR_EMPTY_LIST
-    parsed_transactions.sort(key=get_time)
+    parsed_transactions.sort(key=lambda x: x.update_time)
     
     output = "SN. Name, Amount, Payer"
     counter = 1
@@ -125,5 +121,5 @@ def get_at(transactions, index):
         parsed_transactions.append(doc)
     if len(parsed_transactions) > sn:
         return None
-    parsed_transactions.sort(key=get_time)
+    parsed_transactions.sort(key=lambda x: x.update_time)
     return parsed_transactions[sn]
