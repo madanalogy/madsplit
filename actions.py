@@ -85,7 +85,7 @@ def run_detail(chat_id, text):
     trans_id, transaction = get_at(transactions, int(text))
     if trans_id == 0:
         return constants.ERROR_SUM_MISMATCH
-    output = f"{transaction['name']}, {transaction['amount']}, {transaction['payer']}"
+    output = f"{transaction['name'].title()}, {transaction['amount']}, {transaction['payer'].title()}"
     debtors = transactions.document(trans_id).collection("debtors").stream()
     for debtor in debtors:
         curr = debtor.to_dict()
