@@ -1,8 +1,10 @@
 TRANSACTION_FORMAT = '''== Format ==
 
-/add Label, Amount, Payer Name
-Debtor Name, [Optional Amount]
-Debtor Name, [Optional Amount]'''
+```
+/add Label, Amount, Payer_Name
+Debtor_Name, [Optional_Amount]
+Debtor_Name, [Optional_Amount]
+```'''
 
 EXAMPLES = '''== Examples ==
 
