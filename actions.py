@@ -111,9 +111,10 @@ def run_delete(chat_id, text):
 
 
 def run_settle(chat_id, text):
-    transactions = get_transactions(chat_id).stream()
+    transactions = get_transactions(chat_id)
+    trans_ptrs = transactions.stream()
     balances = {}
-    for trans_ref in transactions:
+    for trans_ref in trans_ptrs:
         transaction = trans_ref.to_dict()
         if transaction['payer'] in balances:
             balances[transaction['payer']] += transaction['amount']
