@@ -1,11 +1,11 @@
 import constants
+import firebase_admin
+from firebase_admin import firestore
+app = firebase_admin.initialize_app()
+db = firestore.client()
 
 
 def get_transactions(chat_id):
-    import firebase_admin
-    from firebase_admin import firestore
-    app = firebase_admin.initialize_app()
-    db = firestore.client(app)
     return db.collection("chats").document(chat_id).collection("transactions")
 
 
@@ -46,17 +46,39 @@ async def run_add(chat_id, text):
     return "Added successfully! Use /list if you want to see all pending transactions"
 
 
+def get_time(transaction):
+    return transaction.update_time
+
+
 async def run_list(chat_id, text):
     transactions = get_transactions(chat_id)
     docs = transactions.stream()
-
-    output = ""
+    parsed_transactions = []
     for doc in docs:
-        output += f"{doc.id} => {doc.to_dict()}"
+        parsed_transactions.append(doc)
+    parsed_transactions.sort(key=get_time)
+
+    output = "SN. Name, Amount, Payer"
+    counter = 1
+    for transaction in parsed_transactions:
+        output += f"\n{counter}. {transaction.name}, {transaction.amount}, {transaction.payer}"
+        counter += 1
     return output
 
 
 async def run_detail(chat_id, text):
+    transactions = get_transactions(chat_id)
+    if not text or not text.strip().isnumeric():
+        return constants.ERROR_GENERIC
+    id = int(text.strip())
+    docs = transactions.stream()
+    parsed_transactions = []
+    for doc in docs:
+        parsed_transactions.append(doc)
+    if len(parsed_transactions) > id:
+        return constants.ERROR_GENERIC
+    parsed_transactions.sort(key=get_time)
+    transactions.document()
     return text
 
 
