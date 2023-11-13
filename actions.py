@@ -91,11 +91,11 @@ async def run_detail(chat_id, text):
 
 
 async def run_delete(chat_id, text):
-    return text
+    return "TODO"
 
 
 async def run_settle(chat_id, text):
-    return text
+    return "TODO"
 
 
 def is_valid_amount(value):
