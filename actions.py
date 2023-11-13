@@ -68,17 +68,11 @@ def run_add(chat_id, text):
 def run_list(chat_id):
     transactions = get_transactions(chat_id)
     docs = transactions.order_by("timestamp").stream()
-    parsed_transactions = []
-    for doc in docs:
-        print(f"{doc.id} => {doc.to_dict()}")
-        parsed_transactions.append(doc.to_dict())
-    if len(parsed_transactions) == 0:
-        return constants.ERROR_EMPTY_LIST
-
     output = "Transaction List\n"
     counter = 1
-    for transaction in parsed_transactions:
-        output += f"\n{counter}. {transaction['name']}, {transaction['amount']}, {transaction['payer']}"
+    for doc in docs:
+        doc_dict = doc.to_dict()
+        output += f"\n{counter}. {doc_dict['name'].title()}, {doc_dict['amount']}, {doc_dict['payer'].title()}"
         counter += 1
 
     return output
@@ -94,7 +88,7 @@ def run_detail(chat_id, text):
     for debtor in debtors:
         curr = debtor.to_dict()
         amt_str = "{:.2f}".format(round(curr['amount'], 2))
-        output += f"\n{curr['name']}, {amt_str}"
+        output += f"\n{curr['name'].title()}, {amt_str}"
 
     return output
 
@@ -173,7 +167,7 @@ def run_settle(chat_id):
                 output[creditor] = f"Get ${value_str} from {debtor}"
     final = "Here's the final tally!\n"
     for person in output:
-        final += f"\n{person}: {output[person]}"
+        final += f"\n{person.title()}: {output[person]}"
 
     return final
 
@@ -194,9 +188,8 @@ def get_at(transactions, index):
         return None, None
     sn = int(index)
     docs = transactions.order_by("timestamp").stream()
-    parsed_transactions = []
+    counter = 1
     for doc in docs:
-        parsed_transactions.append((doc.id, doc.to_dict()))
-    if len(parsed_transactions) > sn:
-        return None, None
-    return parsed_transactions[sn - 1]
+        if index == counter:
+            return doc.id, doc.to_dict()
+        counter += 1
