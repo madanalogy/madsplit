@@ -74,6 +74,8 @@ def run_list(chat_id):
         doc_dict = doc.to_dict()
         output += f"\n{counter}. {doc_dict['name'].title()}, {doc_dict['amount']}, {doc_dict['payer'].title()}"
         counter += 1
+    if counter == 1:
+        return constants.ERROR_EMPTY_LIST
 
     return output
 
