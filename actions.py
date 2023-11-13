@@ -18,6 +18,7 @@ async def run_add(chat_id, text):
         return constants.ERROR_ADD_FORMAT
     amount = core[1].strip()
     if not is_valid_amount(amount):
+        print("Detected not valid amount: ", amount)
         return constants.ERROR_PRECONDITION
     details = {
         "name": core[0].strip().lower(),
@@ -31,6 +32,7 @@ async def run_add(chat_id, text):
         if not parsed or len(parsed) > 2:
             return constants.ERROR_ADD_FORMAT
         if len(parsed) == 2 and not is_valid_amount(parsed[1]):
+            print("Detected not valid amount: ", parsed[1])
             return constants.ERROR_PRECONDITION
         if len(parsed) == 2:
             owed_amount[parsed[0].strip()] = float(parsed[1])
@@ -96,6 +98,7 @@ async def run_delete(chat_id, text):
 
 async def run_settle(chat_id, text):
     transactions = get_transactions(chat_id)
+
     return "TODO"
 
 
@@ -106,7 +109,7 @@ def is_valid_amount(value):
     if len(decimals) == 1:
         return value.isnumeric() and float(value) > 0
     if len(decimals) == 2:
-        return decimals[0].isnumeric() and len(decimals[1]) == 2 and decimals[1].isnumeric() and float(value) > 0
+        return decimals[0].isnumeric() and len(decimals[1]) <= 2 and decimals[1].isnumeric() and float(value) > 0
     return False
 
 
