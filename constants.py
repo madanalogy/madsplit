@@ -4,7 +4,6 @@ TRANSACTION_FORMAT = '''
 /add Label, Amount, Payer Name
 - Payee Name, [Optional Amount]
 - Payee Name, [Optional Amount]
-...
 '''
 
 EXAMPLES = '''
@@ -42,22 +41,17 @@ Tips:
 
 INSTRUCTIONS = '''
 {COMMANDS}
-
 {TRANSACTION_FORMAT}
-
 {EXAMPLES}
-
 {EXPLAINER}
 '''.format(COMMANDS=COMMANDS, TRANSACTION_FORMAT=TRANSACTION_FORMAT, EXAMPLES=EXAMPLES, EXPLAINER=EXPLAINER)
 
 INTRO = '''
 Hey there, here's how you can use me ;)
-
 {INSTRUCTIONS}
 '''.format(INSTRUCTIONS=INSTRUCTIONS)
 
 ERROR_MSG = '''
 Hey sorry I didn't quite get that. Please see the command list below:
-
 {COMMANDS}
 '''.format(COMMANDS=COMMANDS)
