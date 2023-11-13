@@ -70,16 +70,24 @@ async def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
     if not text or not text.strip().isnumeric():
         return constants.ERROR_GENERIC
-    id = int(text.strip())
+    sn = int(text.strip())
     docs = transactions.stream()
     parsed_transactions = []
     for doc in docs:
         parsed_transactions.append(doc)
-    if len(parsed_transactions) > id:
+    if len(parsed_transactions) > sn:
         return constants.ERROR_GENERIC
     parsed_transactions.sort(key=get_time)
-    transactions.document()
-    return text
+    to_get = parsed_transactions[sn]
+
+    output = f"{to_get.name}, {to_get.amount}, {to_get.payer}"
+    debtors = transactions.document(to_get.id).collection("debtors")
+    for debtor in debtors:
+        output += f"\n{debtor.name}"
+        if debtor.amount:
+            output += f", {debtor.amount}"
+
+    return output
 
 
 async def run_delete(chat_id, text):
