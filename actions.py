@@ -48,7 +48,7 @@ def run_add(chat_id, text):
     if running_sum == amount and split_count != 0:
         return constants.ERROR_SUM_MISMATCH
     if split_count != 0:
-        debt_each = (amount-running_sum)/split_count
+        debt_each = (amount-running_sum)/(split_count + 1)
         for debtor in owed_amounts:
             if owed_amounts[debtor] == 0:
                 owed_amounts[debtor] = debt_each
