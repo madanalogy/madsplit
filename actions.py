@@ -111,33 +111,38 @@ def run_delete(chat_id, text):
 
 
 def run_settle(chat_id, text):
-    transactions = get_transactions(chat_id)
-    trans_ptr = transactions.stream()
+    transactions = get_transactions(chat_id).stream()
     balances = {}
-    for ref in trans_ptr:
-        transaction = ref.to_dict()
-        balances[transaction.payer] += transaction['amount']
-        debtors = transaction.collection("debtors").stream()
-        for debt in debtors:
+    for trans_ref in transactions:
+        transaction = trans_ref.to_dict()
+        balances[transaction['payer']] += transaction['amount']
+        debtors = trans_ref.collection("debtors").stream()
+        for debt_ref in debtors:
+            debt = debt_ref.to_dict()
             balances[debt['name']] -= debt['amount']
+            debt_ref.delete()
+        trans_ref.delete()
+
     print(balances)
-    creditorsq = deque()
-    debtorsq = deque()
+    creditorsq = []
+    debtorsq = []
     for person in balances:
         if balances[person] > 0:
             creditorsq.append((person, balances[person]))
         elif balances < 0:
             debtorsq.append((person, abs(balances[person])))
     creditorsq.sort(key=lambda x, y : y, reverse=True)
-    debtorsq.sort(key=lambda x, y : y, reverse=True)
+    debtorsq.sort(key=lambda x, y : y)
+    debtorsq = deque(debtorsq)
+
     output = {}
     for creditor, amount in creditorsq:
         curr = amount
         while curr > 0:
-            debtor, other = debtorsq.popleft()
+            debtor, other = debtorsq.pop()
             if other >= curr:
                 value = curr
-                debtorsq.appendleft(debtor, other - curr)
+                debtorsq.append(debtor, other - curr)
                 curr = 0
             else:
                 value = other
@@ -154,6 +159,7 @@ def run_settle(chat_id, text):
     final = "Here's the final tally!\n"
     for person in output:
         final += "\n" + output[person]
+    
     return final
 
 
