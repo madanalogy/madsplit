@@ -47,6 +47,7 @@ def get_response(chat_id, text):
     print(f"Received message: {text}")
     if not text:
         return
+    text = text.replace("@madsplit_bot", "")
     if text.startswith("/start"):
         return constants.INTRO
     if text.startswith("/add"):
