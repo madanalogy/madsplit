@@ -87,12 +87,13 @@ def run_list(chat_id, text):
 def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
     id, to_get = get_at(transactions, text.strip())
-
+    if not id:
+        return constants.ERROR_GENERIC
     output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
     debtors = transactions.document(id).collection("debtors").stream()
     for debtor in debtors:
         curr = debtor.to_dict()
-        output += f"\n{curr.name}, {curr.amount}"
+        output += f"\n{curr['name']}, {curr['amount']}"
 
     return output
 
@@ -100,6 +101,8 @@ def run_detail(chat_id, text):
 def run_delete(chat_id, text):
     transactions = get_transactions(chat_id)
     id, to_get = get_at(transactions, text.strip())
+    if not id:
+        return constants.ERROR_GENERIC
     debtors = transactions.document(id).collection("debtors").stream()
     for debtor in debtors:
         debtor.delete()
@@ -167,12 +170,12 @@ def is_valid_amount(value):
 
 def get_at(transactions, index):
     if not index or not index.isnumeric() or int(index) < 1:
-        return None
+        return None, None
     sn = int(index)
     docs = transactions.order_by("timestamp").stream()
     parsed_transactions = []
     for doc in docs:
         parsed_transactions.append((doc.id, doc.to_dict()))
     if len(parsed_transactions) > sn:
-        return None
+        return None, None
     return parsed_transactions[sn-1]
