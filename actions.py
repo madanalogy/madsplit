@@ -9,7 +9,7 @@ def get_transactions(chat_id):
     return db.collection("chats").document(str(chat_id)).collection("transactions")
 
 
-async def run_add(chat_id, text):
+def run_add(chat_id, text):
     lines = text.split("\n")
     if len(lines) < 2:
         return constants.ERROR_ADD_FORMAT
@@ -63,7 +63,7 @@ async def run_add(chat_id, text):
     return "Added successfully! Use /list if you want to see all pending transactions"
 
 
-async def run_list(chat_id, text):
+def run_list(chat_id, text):
     transactions = get_transactions(chat_id)
     docs = transactions.stream()
     parsed_transactions = []
@@ -82,7 +82,7 @@ async def run_list(chat_id, text):
     return output
 
 
-async def run_detail(chat_id, text):
+def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
     to_get = get_at(transactions, text.strip())
 
@@ -94,7 +94,7 @@ async def run_detail(chat_id, text):
     return output
 
 
-async def run_delete(chat_id, text):
+def run_delete(chat_id, text):
     transactions = get_transactions(chat_id)
     to_get = get_at(transactions, text.strip())
     debtors = transactions.document(to_get.id).collection("debtors")
@@ -105,7 +105,7 @@ async def run_delete(chat_id, text):
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
-async def run_settle(chat_id, text):
+def run_settle(chat_id, text):
     transactions = get_transactions(chat_id)
     trans_ptr = transactions.stream()
     balances = {}

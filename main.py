@@ -36,25 +36,25 @@ async def process(request):
     bot = telegram.Bot(token=BOT_TOKEN)
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
-    response = await get_response(chat_id, update.message.text)
+    response = get_response(chat_id, update.message.text)
     print(f"Response sent: {response}")
     await bot.sendMessage(chat_id=chat_id, text=response)
 
 
-async def get_response(chat_id, text):
+def get_response(chat_id, text):
     print(f"Received chat_id: {chat_id}, msg: {text}")
     if text.startswith("/start"):
         return constants.INTRO
     if text.startswith("/add"):
-        return await actions.run_add(chat_id, text[len("/add"):])
+        return actions.run_add(chat_id, text[len("/add"):])
     if text.startswith("/list"):
-        return await actions.run_list(chat_id, text[len("/list"):])
+        return actions.run_list(chat_id, text[len("/list"):])
     if text.startswith("/detail"):
-        return await actions.run_detail(chat_id, text[len("/detail"):])
+        return actions.run_detail(chat_id, text[len("/detail"):])
     if text.startswith("/delete"):
-        return await actions.run_delete(chat_id, text[len("/delete"):])
+        return actions.run_delete(chat_id, text[len("/delete"):])
     if text.startswith("/settle"):
-        return await actions.run_settle(chat_id, text[len("/settle"):])
+        return actions.run_settle(chat_id, text[len("/settle"):])
     if text.startswith("/help"):
         return constants.INSTRUCTIONS
     return constants.ERROR_GENERIC
