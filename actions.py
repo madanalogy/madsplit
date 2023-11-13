@@ -79,7 +79,7 @@ def run_list(chat_id):
 
 
 def run_detail(chat_id, text):
-    print("Received detail index:", int(text))
+    print("Received detail index:", text)
     if not text or int(text) < 1:
         return constants.ERROR_GENERIC
     transactions = get_transactions(chat_id)
@@ -193,7 +193,7 @@ def get_at(transactions, index):
     docs = transactions.order_by("timestamp").stream()
     counter = 1
     for doc in docs:
-        if int(index) == counter:
+        if index == counter:
             return doc.id, doc.to_dict()
         counter += 1
     return 0, {}
