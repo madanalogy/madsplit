@@ -58,7 +58,7 @@ def run_add(chat_id, text):
     update_time, trans_ref = transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
     for debtor in owed_amounts:
-        debt_ref.document(debtor).add({"name": debtor, "amount": owed_amounts[debtor]})
+        debt_ref.add({"name": debtor, "amount": owed_amounts[debtor]})
 
     return "Added successfully! Use /list if you want to see all pending transactions"
 
@@ -114,8 +114,15 @@ def run_settle(chat_id, text):
         debtors = transaction.collection("debtors")
         debts_ptr = debtors.stream()
         for debt in debts_ptr:
-            balances[debt.name] += debt.amount
+            balances[debt.name] -= debt.amount
     print(balances)
+    creditors = []
+    debtors = []
+    for person in balances:
+        if balances[person] > 0:
+            creditors.append((person, balances[person]))
+        elif balances < 0:
+            debtors.append((person, abs(balances[person])))
     return "TODO"
 
 
