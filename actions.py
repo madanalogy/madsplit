@@ -108,7 +108,7 @@ def run_delete(chat_id, text):
     for debtor in debts_ptr:
         debtors.document(debtor.id).delete()
     transactions.document(id).delete()
-    
+
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
@@ -132,14 +132,15 @@ def run_settle(chat_id, text):
                 balances[debt['name']] = -1 * debt['amount']
             debtors.document(debt_ref.id).delete()
         transactions.document(trans_ref.id).delete()
+    if not balances:
+        return constants.ERROR_EMPTY_LIST
 
-    print(balances)
     creditorsq = []
     debtorsq = []
     for person in balances:
         if balances[person] > 0:
             creditorsq.append((person, balances[person]))
-        elif balances < 0:
+        elif balances[person] < 0:
             debtorsq.append((person, abs(balances[person])))
     creditorsq.sort(key=lambda x, y : y, reverse=True)
     debtorsq.sort(key=lambda x, y : y)
