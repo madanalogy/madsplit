@@ -23,4 +23,4 @@ jobs:
       with:
         name: 'webhook'
         runtime: 'python310'
-        env_vars: 'BOT_TOKEN=${{ secrets.TELEGRAM_TOKEN }}'
+        env_vars: 'BOT_TOKEN=${{ secrets.BOT_TOKEN }}'
