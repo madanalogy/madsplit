@@ -37,7 +37,7 @@ async def run_add(chat_id, text):
             if not is_valid_amount(owed):
                 return constants.ERROR_PRECONDITION
             owed_amounts[parsed[0].strip()] = float(owed)
-            running_sum += owed
+            running_sum += float(owed)
         else:
             owed_amounts[parsed[0].strip()] = 0
             split_count += 1
