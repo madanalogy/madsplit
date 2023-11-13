@@ -103,32 +103,35 @@ def run_delete(chat_id, text):
     id, to_get = get_at(transactions, text.strip())
     if not id:
         return constants.ERROR_GENERIC
-    debtors = transactions.document(id).collection("debtors").stream()
-    for debtor in debtors:
-        debtor.delete()
+    debtors = transactions.document(id).collection("debtors")
+    debts_ptr = debtors.stream()
+    for debtor in debts_ptr:
+        debtors.document(debtor.id).delete()
     transactions.document(id).delete()
+    
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
 def run_settle(chat_id, text):
     transactions = get_transactions(chat_id)
-    trans_ptrs = transactions.stream()
+    trans_ptr = transactions.stream()
     balances = {}
-    for trans_ref in trans_ptrs:
+    for trans_ref in trans_ptr:
         transaction = trans_ref.to_dict()
         if transaction['payer'] in balances:
             balances[transaction['payer']] += transaction['amount']
         else:
             balances[transaction['payer']] = transaction['amount']
-        debtors = transactions.document(trans_ref.id).collection("debtors").stream()
-        for debt_ref in debtors:
+        debtors = transactions.document(trans_ref.id).collection("debtors")
+        debts_ptr = debtors.stream()
+        for debt_ref in debts_ptr:
             debt = debt_ref.to_dict()
             if debt['name'] in balances:
                 balances[debt['name']] -= debt['amount']
             else:
                 balances[debt['name']] = -1 * debt['amount']
-            debt_ref.delete()
-        trans_ref.delete()
+            debtors.document(debt_ref.id).delete()
+        transactions.document(trans_ref.id).delete()
 
     print(balances)
     creditorsq = []
