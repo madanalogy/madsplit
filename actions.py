@@ -1,9 +1,9 @@
 import constants
-import firebase_admin
-from firebase_admin import firestore
 
 
 def get_transactions(chat_id):
+    import firebase_admin
+    from firebase_admin import firestore
     app = firebase_admin.initialize_app()
     db = firestore.client(app)
     return db.collection("chats").document(chat_id).collection("transactions")
