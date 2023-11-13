@@ -19,9 +19,10 @@ async def run_add(chat_id, text):
     amount = core[1].strip()
     if not is_valid_amount(amount):
         return constants.ERROR_PRECONDITION
+    amount = float(amount)
     details = {
         "name": core[0].strip().lower(),
-        "amount": float(amount),
+        "amount": amount,
         "payer": core[2].strip().lower(),
     }
     
@@ -36,8 +37,9 @@ async def run_add(chat_id, text):
             owed = parsed[1].strip()
             if not is_valid_amount(owed):
                 return constants.ERROR_PRECONDITION
-            owed_amounts[parsed[0].strip()] = float(owed)
-            running_sum += float(owed)
+            owed = float(owed)
+            owed_amounts[parsed[0].strip()] = owed
+            running_sum += owed
         else:
             owed_amounts[parsed[0].strip()] = 0
             split_count += 1
