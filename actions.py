@@ -148,7 +148,8 @@ def run_settle(chat_id, text):
             debtor, other = debtorsq.pop()
             if other >= curr:
                 value = curr
-                debtorsq.append(debtor, other - curr)
+                if other > curr:
+                    debtorsq.append(debtor, other - curr)
                 curr = 0
             else:
                 value = other
