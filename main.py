@@ -34,42 +34,80 @@ async def process(request):
     bot = telegram.Bot(token=BOT_TOKEN)
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
-    response = get_response(update.message.text)
+    response = get_response(chat_id, update.message.text)
     await bot.sendMessage(chat_id=chat_id, text=response)
 
 
-def get_response(text):
-    lines = text.split("\n")
-    if lines[0].startswith("/start"):
-        return "Hey there :)"
-    if lines[0].startswith("/add"):
-        return entry
-    return text
+def get_response(chat_id, text):
+    if text.startswith("/start"):
+        return INTRO
+    if text.startswith("/help"):
+        return INSTRUCTIONS
+    return ERROR_MSG
 
 
-commands = '''
-
-'''
-
-entry = '''
+TRANSACTION_FORMAT = '''
 == Format ==
 
-Expense Name, Amount, Payer
-- Name 1, [Optional Amount]
-- Name 2, [Optional Amount]
+/add Label, Amount, Payer Name
+- Payee Name, [Optional Amount]
+- Payee Name, [Optional Amount]
 ...
+'''
 
+EXAMPLES = '''
 == Examples ==
 
-Dinner at Wendy's, 456, John
+/add Dinner, 456, John
 - Andy, 123
 - Bob, 78
 
-Drinks at Harry's, 654, Bob
+/add Drinks, 654, Bob
 - Andy
 - John
 - Mary
+'''
 
+COMMANDS = '''
+- /add to add a transaction to the list.
+- /list to view the current pending transactions.
+- /detail followed by a number from /list to show details of a transaction.
+- /delete followed by a number from /list to remove a transaction.
+- /settle to settle up all pending transactions. This will remove all transactions.
+- /help to bring up the available instructions and format.
+'''
+
+EXPLAINER = '''
+How it works:
+- If a payee's amount is specified in a transaction, that share will first be deducted from the amount.
+- The remaining amount will be split amongst all payees that do not have an amount specified.
+- The bot will then calculate all relationships between transactions to come up with a final tally.
+
+Tips:
+- Make sure the spelling of each name is consitent across transactions. The name is not case sensitive.
+- Amounts support up to 2 decimal digits. Any rounding difference in division will go to the payer.
+'''
+
+INSTRUCTIONS = '''
+${COMMANDS}
+
+${TRANSACTION_FORMAT}
+
+${EXAMPLES}
+
+${EXPLAINER}
+'''
+
+INTRO = '''
+Hey there, here's how you can use me ;)
+
+${INSTRUCTIONS}
+'''
+
+ERROR_MSG = '''
+Hey sorry I didn't quite get that. Please see the command list below:
+
+${COMMANDS}
 '''
 
 load_dotenv()
