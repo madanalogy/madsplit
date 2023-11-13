@@ -37,7 +37,6 @@ async def process(request):
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
     response = get_response(chat_id, update.message.text)
-    print(f"Response sent: {response}")
     await bot.sendMessage(chat_id=chat_id, text=response)
 
 
