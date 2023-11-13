@@ -32,13 +32,16 @@ def webhook(request):
 
 
 async def process(request):
-    BOT_TOKEN = os.getenv("BOT_TOKEN")
-    bot = telegram.Bot(token=BOT_TOKEN)
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    chat_id = update.message.chat.id
-    print(f"Received chat_id: {chat_id}, update: {update}")
-    response = get_response(chat_id, update.message.text)
-    await bot.sendMessage(chat_id=chat_id, text=response)
+    try:
+        BOT_TOKEN = os.getenv("BOT_TOKEN")
+        bot = telegram.Bot(token=BOT_TOKEN)
+        update = telegram.Update.de_json(request.get_json(force=True), bot)
+        print(f"Received update: {update}")
+        chat_id = update.message.chat.id
+        response = get_response(chat_id, update.message.text)
+        await bot.sendMessage(chat_id=chat_id, text=response)
+    except:
+        print(f"Error occured: {request}")
 
 
 def get_response(chat_id, text):
