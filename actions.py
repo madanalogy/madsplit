@@ -66,13 +66,13 @@ def run_add(chat_id, text):
 
 def run_list(chat_id, text):
     transactions = get_transactions(chat_id)
-    docs = transactions.stream()
+    docs = transactions.order_by("timestamp").stream()
     parsed_transactions = []
     for doc in docs:
+        print(f"{doc.id} => {doc.to_dict()}")
         parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) == 0:
         return constants.ERROR_EMPTY_LIST
-    parsed_transactions.sort(key=lambda x: x.timestamp)
     
     output = "SN. Name, Amount, Payer"
     counter = 1
@@ -143,11 +143,10 @@ def get_at(transactions, index):
     if not index or not index.isnumeric() or int(index) < 1:
         return None
     sn = int(index)
-    docs = transactions.stream()
+    docs = transactions.order_by("timestamp").stream()
     parsed_transactions = []
     for doc in docs:
         parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) > sn:
         return None
-    parsed_transactions.sort(key=lambda x: x.timestamp)
     return parsed_transactions[sn-1]
