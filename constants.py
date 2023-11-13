@@ -59,3 +59,5 @@ ERROR_ADD_FORMAT = '''Think you got the format wrong for that one. PLease see th
 ERROR_PRECONDITION = '''You're missing out on one of the requirements below:
 
 {ASSUMPTIONS}'''.format(ASSUMPTIONS=ASSUMPTIONS)
+
+ERROR_EMPTY_LIST = "Nothing here yet! Use the /add command to add transactions."

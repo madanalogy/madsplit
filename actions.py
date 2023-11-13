@@ -10,10 +10,9 @@ def get_transactions(chat_id):
 
 
 async def run_add(chat_id, text):
-    transactions = get_transactions(chat_id)
     lines = text.split("\n")
     if len(lines) < 2:
-        return constants.ERROR_PRECONDITION
+        return constants.ERROR_ADD_FORMAT
     core = lines[0].split(",")
     if len(core) != 3:
         return constants.ERROR_ADD_FORMAT
@@ -38,6 +37,7 @@ async def run_add(chat_id, text):
         else:
             debtors[parsed[0].strip()] = -1
 
+    transactions = get_transactions(chat_id)
     update_time, trans_ref = await transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
     for debtor in debtors:
@@ -56,29 +56,22 @@ async def run_list(chat_id, text):
     parsed_transactions = []
     for doc in docs:
         parsed_transactions.append(doc)
+    if len(parsed_transactions) == 0:
+        return constants.ERROR_EMPTY_LIST
     parsed_transactions.sort(key=get_time)
-
+    
     output = "SN. Name, Amount, Payer"
     counter = 1
     for transaction in parsed_transactions:
         output += f"\n{counter}. {transaction.name}, {transaction.amount}, {transaction.payer}"
         counter += 1
+
     return output
 
 
 async def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
-    if not text or not text.strip().isnumeric():
-        return constants.ERROR_GENERIC
-    sn = int(text.strip())
-    docs = transactions.stream()
-    parsed_transactions = []
-    for doc in docs:
-        parsed_transactions.append(doc)
-    if len(parsed_transactions) > sn:
-        return constants.ERROR_GENERIC
-    parsed_transactions.sort(key=get_time)
-    to_get = parsed_transactions[sn]
+    to_get = get_at(transactions, text.strip())
 
     output = f"{to_get.name}, {to_get.amount}, {to_get.payer}"
     debtors = transactions.document(to_get.id).collection("debtors")
@@ -91,10 +84,14 @@ async def run_detail(chat_id, text):
 
 
 async def run_delete(chat_id, text):
-    return "TODO"
+    transactions = get_transactions(chat_id)
+    to_get = get_at(transactions, text.strip())
+    await transactions.document(to_get.id).delete()
+    return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
 async def run_settle(chat_id, text):
+    transactions = get_transactions(chat_id)
     return "TODO"
 
 
@@ -107,3 +104,19 @@ def is_valid_amount(value):
     if len(decimals) == 2:
         return decimals[0].isnumeric() and len(decimals[1]) == 2 and decimals[1].isnumeric() and float(value) > 0
     return False
+
+
+def get_at(transactions, index):
+    if not index or not index.isnumeric():
+        return None
+    sn = int(index)
+    if sn < 1:
+        return None
+    docs = transactions.stream()
+    parsed_transactions = []
+    for doc in docs:
+        parsed_transactions.append(doc)
+    if len(parsed_transactions) > sn:
+        return None
+    parsed_transactions.sort(key=get_time)
+    return parsed_transactions[sn]
