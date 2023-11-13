@@ -25,7 +25,7 @@ async def run_add(chat_id, text):
         "payer": core[2].strip().lower(),
     }
     
-    debtors = {}
+    owed_amount = {}
     for line in lines[1:]:
         parsed = line.split(",")
         if not parsed or len(parsed) > 2:
@@ -33,15 +33,15 @@ async def run_add(chat_id, text):
         if len(parsed) == 2 and not is_valid_amount(parsed[1]):
             return constants.ERROR_PRECONDITION
         if len(parsed) == 2:
-            debtors[parsed[0].strip()] = float(parsed[1])
+            owed_amount[parsed[0].strip()] = float(parsed[1])
         else:
-            debtors[parsed[0].strip()] = -1
+            owed_amount[parsed[0].strip()] = -1
 
     transactions = get_transactions(chat_id)
     update_time, trans_ref = await transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
-    for debtor in debtors:
-        await debt_ref.document(debtor).set({"amount": debtors[debtor]})
+    for debtor in owed_amount:
+        await debt_ref.document(debtor).add({"name": debtor, "amount": owed_amount[debtor]})
 
     return "Added successfully! Use /list if you want to see all pending transactions"
 
@@ -86,6 +86,10 @@ async def run_detail(chat_id, text):
 async def run_delete(chat_id, text):
     transactions = get_transactions(chat_id)
     to_get = get_at(transactions, text.strip())
+    debtors = transactions.document(to_get.id).collection("debtors")
+    docs = debtors.stream()
+    for doc in docs:
+        await doc.delete()
     await transactions.document(to_get.id).delete()
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
