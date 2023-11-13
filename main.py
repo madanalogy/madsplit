@@ -36,11 +36,11 @@ async def process(request):
     bot = telegram.Bot(token=BOT_TOKEN)
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
-    response = get_response(chat_id, update.message.text)
+    response = await get_response(chat_id, update.message.text)
     await bot.sendMessage(chat_id=chat_id, text=response)
 
 
-def get_response(chat_id, text):
+async def get_response(chat_id, text):
     if text.startswith("/start"):
         return constants.INTRO
     if text.startswith("/add"):
