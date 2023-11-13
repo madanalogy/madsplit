@@ -138,6 +138,14 @@ def run_settle(chat_id):
     if not balances:
         return constants.ERROR_EMPTY_LIST
 
+    output = calculate(balances)
+    final = "Here's the final tally!\n"
+    for person in output:
+        final += f"\n{person.title()}: {output[person]}"
+
+    return final
+
+def calculate(balances):
     creditors = []
     debtors = []
     for person in balances:
@@ -171,11 +179,7 @@ def run_settle(chat_id):
                 output[creditor] += f", Get ${value_str} from {debtor.title()}"
             else:
                 output[creditor] = f"Get ${value_str} from {debtor.title()}"
-    final = "Here's the final tally!\n"
-    for person in output:
-        final += f"\n{person.title()}: {output[person]}"
-
-    return final
+    return output
 
 
 def is_valid_amount(value):
