@@ -47,20 +47,20 @@ def get_response(chat_id, text):
     print(f"Received message: {text}")
     if not text:
         return
-    text = text.replace("@madsplit_bot", "")
-    if text.startswith("/start"):
+    clean = text.replace("@madsplit_bot", "")
+    if clean.startswith("/start"):
         return constants.INTRO
-    if text.startswith("/add"):
-        return actions.run_add(chat_id, text[len("/add"):])
-    if text.startswith("/list"):
+    if clean.startswith("/add"):
+        return actions.run_add(chat_id, clean[len("/add"):])
+    if clean.startswith("/list"):
         return actions.run_list(chat_id)
-    if text.startswith("/detail"):
-        return actions.run_detail(chat_id, text[len("/detail"):])
-    if text.startswith("/delete"):
-        return actions.run_delete(chat_id, text[len("/delete"):])
-    if text.startswith("/settle"):
+    if clean.startswith("/detail"):
+        return actions.run_detail(chat_id, clean[len("/detail"):])
+    if clean.startswith("/delete"):
+        return actions.run_delete(chat_id, clean[len("/delete"):])
+    if clean.startswith("/settle"):
         return actions.run_settle(chat_id)
-    if text.startswith("/help"):
+    if clean.startswith("/help"):
         return constants.INTRO
     return constants.ERROR_GENERIC
 
