@@ -24,6 +24,7 @@ def run_add(chat_id, text):
         "name": core[0].strip().lower(),
         "amount": amount,
         "payer": core[2].strip().lower(),
+        "timestamp": firestore.SERVER_TIMESTAMP
     }
     
     owed_amounts = {}
@@ -71,7 +72,7 @@ def run_list(chat_id, text):
         parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) == 0:
         return constants.ERROR_EMPTY_LIST
-    parsed_transactions.sort(key=lambda x: x.update_time)
+    parsed_transactions.sort(key=lambda x: x.timestamp)
     
     output = "SN. Name, Amount, Payer"
     counter = 1
@@ -148,5 +149,5 @@ def get_at(transactions, index):
         parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) > sn:
         return None
-    parsed_transactions.sort(key=lambda x: x.update_time)
+    parsed_transactions.sort(key=lambda x: x.timestamp)
     return parsed_transactions[sn-1]
