@@ -79,12 +79,10 @@ def run_list(chat_id):
 
 
 def run_detail(chat_id, text):
-    print("Received detail index:", text)
     if not text or int(text) < 1:
         return constants.ERROR_GENERIC
     transactions = get_transactions(chat_id)
     trans_id, transaction = get_at(transactions, int(text))
-    print("Processed trans_id:", trans_id)
     if trans_id == 0:
         return constants.ERROR_SUM_MISMATCH
     output = f"{transaction['name']}, {transaction['amount']}, {transaction['payer']}"
@@ -164,13 +162,13 @@ def run_settle(chat_id):
                 curr -= other
             value_str = "{:.2f}".format(round(value, 2))
             if debtor in output:
-                output[debtor] += f", Pay {creditor} ${value_str}"
+                output[debtor] += f", Pay {creditor.title()} ${value_str}"
             else:
-                output[debtor] = f"Pay {creditor} ${value_str}"
+                output[debtor] = f"Pay {creditor.title()} ${value_str}"
             if creditor in output:
-                output[creditor] += f", Get ${value_str} from {debtor}"
+                output[creditor] += f", Get ${value_str} from {debtor.title()}"
             else:
-                output[creditor] = f"Get ${value_str} from {debtor}"
+                output[creditor] = f"Get ${value_str} from {debtor.title()}"
     final = "Here's the final tally!\n"
     for person in output:
         final += f"\n{person.title()}: {output[person]}"
