@@ -68,7 +68,7 @@ def run_list(chat_id, text):
     docs = transactions.stream()
     parsed_transactions = []
     for doc in docs:
-        parsed_transactions.append(doc)
+        parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) == 0:
         return constants.ERROR_EMPTY_LIST
     parsed_transactions.sort(key=lambda x: x.update_time)
@@ -109,7 +109,8 @@ def run_settle(chat_id, text):
     transactions = get_transactions(chat_id)
     trans_ptr = transactions.stream()
     balances = {}
-    for transaction in trans_ptr:
+    for ref in trans_ptr:
+        transaction = ref.to_dict()
         balances[transaction.payer] += transaction.amount
         debtors = transaction.collection("debtors")
         debts_ptr = debtors.stream()
@@ -144,7 +145,7 @@ def get_at(transactions, index):
     docs = transactions.stream()
     parsed_transactions = []
     for doc in docs:
-        parsed_transactions.append(doc)
+        parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) > sn:
         return None
     parsed_transactions.sort(key=lambda x: x.update_time)
