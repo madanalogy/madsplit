@@ -93,7 +93,8 @@ def run_detail(chat_id, text):
     debtors = transactions.document(trans_id).collection("debtors").stream()
     for debtor in debtors:
         curr = debtor.to_dict()
-        output += f"\n{curr['name']}, {curr['amount']}"
+        amt_str = "{:.2f}".format(round(curr['amount'], 2))
+        output += f"\n{curr['name']}, {amt_str}"
 
     return output
 

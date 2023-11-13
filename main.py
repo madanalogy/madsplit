@@ -44,8 +44,9 @@ async def process(request):
 
 
 def get_response(chat_id, text):
+    print(f"Received message: {text}")
     if not text:
-        return constants.ERROR_GENERIC
+        return
     if text.startswith("/start"):
         return constants.INTRO
     if text.startswith("/add"):

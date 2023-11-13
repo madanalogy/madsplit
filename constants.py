@@ -1,10 +1,8 @@
 TRANSACTION_FORMAT = '''== Format ==
 
-```
 /add Label, Amount, Payer_Name
 Debtor_Name, [Optional_Amount]
-Debtor_Name, [Optional_Amount]
-```'''
+Debtor_Name, [Optional_Amount]'''
 
 EXAMPLES = '''== Examples ==
 
@@ -52,7 +50,7 @@ ERROR_GENERIC = '''Hey sorry I didn't quite get that. Please see the command lis
 
 {COMMANDS}'''.format(COMMANDS=COMMANDS)
 
-ERROR_ADD_FORMAT = '''Think you got the format wrong for that one. PLease see the format below:
+ERROR_ADD_FORMAT = '''Think you got the format wrong for that one. Please see the format below:
 
 {TRANSACTION_FORMAT}
 
