@@ -1,6 +1,7 @@
 import constants
 import firebase_admin
 from firebase_admin import firestore
+from collections import deque
 app = firebase_admin.initialize_app()
 db = firestore.client()
 
@@ -74,7 +75,7 @@ def run_list(chat_id, text):
     if len(parsed_transactions) == 0:
         return constants.ERROR_EMPTY_LIST
     
-    output = "SN. Name, Amount, Payer"
+    output = "Transaction List\n"
     counter = 1
     for transaction in parsed_transactions:
         output += f"\n{counter}. {transaction['name']}, {transaction['amount']}, {transaction['payer']}"
@@ -85,10 +86,10 @@ def run_list(chat_id, text):
 
 def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
-    to_get = get_at(transactions, text.strip())
+    id, to_get = get_at(transactions, text.strip())
 
     output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
-    debtors = transactions.document(to_get.id).collection("debtors")
+    debtors = transactions.document(id).collection("debtors")
     for debtor in debtors:
         output += f"\n{debtor.name}, {debtor.amount}"
 
@@ -97,12 +98,12 @@ def run_detail(chat_id, text):
 
 def run_delete(chat_id, text):
     transactions = get_transactions(chat_id)
-    to_get = get_at(transactions, text.strip())
-    debtors = transactions.document(to_get.id).collection("debtors")
+    id, to_get = get_at(transactions, text.strip())
+    debtors = transactions.document(id).collection("debtors")
     docs = debtors.stream()
     for doc in docs:
         doc.delete()
-    transactions.document(to_get.id).delete()
+    transactions.document(id).delete()
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
@@ -118,14 +119,40 @@ def run_settle(chat_id, text):
         for debt in debts_ptr:
             balances[debt['name']] -= debt['amount']
     print(balances)
-    creditors = []
-    debtors = []
+    creditors = deque()
+    debtors = deque()
     for person in balances:
         if balances[person] > 0:
             creditors.append((person, balances[person]))
         elif balances < 0:
             debtors.append((person, abs(balances[person])))
-    return "TODO"
+    creditors.sort(key=lambda x, y : y, reverse=True)
+    debtors.sort(key=lambda x, y : y, reverse=True)
+    output = {}
+    for creditor, amount in creditors:
+        curr = amount
+        while curr > 0:
+            debtor, other = debtors.popleft()
+            if other >= curr:
+                value = curr
+                debtors.appendleft(debtor, other - curr)
+                curr = 0
+            else:
+                value = other
+                curr -= other
+            value_str = "{:.2f}".format(round(value, 2))
+            if output[debtor]:
+                output[debtor] += f", Pay {creditor} ${value_str}"
+            else:
+                output[debtor] = f"Pay {creditor} ${value_str}"
+            if output[creditor]:
+                output[creditor] += f", Get ${value_str} from {debtor}"
+            else:
+                output[creditor] = f"Get ${value_str} from {debtor}"
+    final = "Here's the final tally!\n"
+    for person in output:
+        final += "\n" + output[person]
+    return final
 
 
 def is_valid_amount(value):
@@ -146,7 +173,7 @@ def get_at(transactions, index):
     docs = transactions.order_by("timestamp").stream()
     parsed_transactions = []
     for doc in docs:
-        parsed_transactions.append(doc.to_dict())
+        parsed_transactions.append((doc.id, doc.to_dict()))
     if len(parsed_transactions) > sn:
         return None
     return parsed_transactions[sn-1]
