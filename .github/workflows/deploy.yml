@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  job_id:
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v4'
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+    - id: 'deploy'
+      uses: 'google-github-actions/deploy-cloud-functions@v1'
+      with:
+        name: 'webhook'
+        runtime: 'python310'
+        env_vars: 'BOT_TOKEN=${{ secrets.TELEGRAM_TOKEN }}'
