@@ -68,7 +68,7 @@ def run_add(chat_id, text):
 def run_list(chat_id):
     transactions = get_transactions(chat_id)
     docs = transactions.order_by("timestamp").stream()
-    output = "Transaction List\n"
+    output = "Use /detail followed by a number from the list below to see full transaction info\n"
     counter = 1
     for doc in docs:
         doc_dict = doc.to_dict()
