@@ -44,18 +44,18 @@ async def get_response(chat_id, text):
     if text.startswith("/start"):
         return constants.INTRO
     if text.startswith("/add"):
-        return await actions.run_add(chat_id, text)
+        return await actions.run_add(chat_id, text[len("/add"):])
     if text.startswith("/list"):
-        return await actions.run_list(chat_id, text)
+        return await actions.run_list(chat_id, text[len("/list"):])
     if text.startswith("/detail"):
-        return await actions.run_detail(chat_id, text)
+        return await actions.run_detail(chat_id, text[len("/detail"):])
     if text.startswith("/delete"):
-        return await actions.run_delete(chat_id, text)
+        return await actions.run_delete(chat_id, text[len("/delete"):])
     if text.startswith("/settle"):
-        return await actions.run_settle(chat_id, text)
+        return await actions.run_settle(chat_id, text[len("/settle"):])
     if text.startswith("/help"):
         return constants.INSTRUCTIONS
-    return constants.ERROR_MSG
+    return constants.ERROR_GENERIC
 
 
 load_dotenv()
