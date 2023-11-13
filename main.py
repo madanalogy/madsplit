@@ -44,15 +44,15 @@ async def get_response(chat_id, text):
     if text.startswith("/start"):
         return constants.INTRO
     if text.startswith("/add"):
-        return actions.run_add(chat_id, text)
+        return await actions.run_add(chat_id, text)
     if text.startswith("/list"):
-        return actions.run_list(chat_id, text)
+        return await actions.run_list(chat_id, text)
     if text.startswith("/detail"):
-        return actions.run_detail(chat_id, text)
+        return await actions.run_detail(chat_id, text)
     if text.startswith("/delete"):
-        return actions.run_delete(chat_id, text)
+        return await actions.run_delete(chat_id, text)
     if text.startswith("/settle"):
-        return actions.run_settle(chat_id, text)
+        return await actions.run_settle(chat_id, text)
     if text.startswith("/help"):
         return constants.INSTRUCTIONS
     return constants.ERROR_MSG

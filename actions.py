@@ -1,20 +1,22 @@
 import firebase_admin
 from firebase_admin import firestore
 
-# Application Default credentials are automatically created.
-app = firebase_admin.initialize_app()
-db = firestore.client()
+
+async def get_transactions(chat_id):
+    app = firebase_admin.initialize_app()
+    db = firestore.client(app)
+    return db.collection("chats").document(chat_id).collection("transactions")
 
 
 async def run_add(chat_id, text):
-    trans_db = db.collection("chats").document(chat_id).collection("transactions")
-    update_time, trans_ref = await trans_db.add(text)
+    transactions = get_transactions(chat_id)
+    update_time, trans_ref = await transactions.add(text)
     return f"{trans_ref.id} created on {update_time}"
 
 
-def run_list(chat_id, text):
-    trans_db = db.collection("chats").document(chat_id).collection("transactions")
-    docs = trans_db.stream()
+async def run_list(chat_id, text):
+    transactions = get_transactions(chat_id)
+    docs = transactions.stream()
 
     output = ""
     for doc in docs:
@@ -22,13 +24,13 @@ def run_list(chat_id, text):
     return output
 
 
-def run_detail(chat_id, text):
+async def run_detail(chat_id, text):
     return text
 
 
-def run_delete(chat_id, text):
+async def run_delete(chat_id, text):
     return text
 
 
-def run_settle(chat_id, text):
+async def run_settle(chat_id, text):
     return text
