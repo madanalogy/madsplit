@@ -6,7 +6,7 @@ db = firestore.client()
 
 
 def get_transactions(chat_id):
-    return db.collection("chats").document(chat_id).collection("transactions")
+    return db.collection("chats").document(str(chat_id)).collection("transactions")
 
 
 async def run_add(chat_id, text):
