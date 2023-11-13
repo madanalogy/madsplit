@@ -31,7 +31,7 @@ EXPLAINER = '''How it works:
 - The bot will then calculate all relationships between transactions to come up with a final tally.
 
 Tips:
-- Make sure the spelling of each name is consitent across transactions. The name is not case sensitive.
+- Make sure the spelling of each name is consistent across transactions. The name is not case sensitive.
 {ASSUMPTIONS}'''.format(ASSUMPTIONS=ASSUMPTIONS)
 
 INSTRUCTIONS = '''{COMMANDS}

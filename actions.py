@@ -2,6 +2,7 @@ import constants
 import firebase_admin
 from firebase_admin import firestore
 from collections import deque
+
 app = firebase_admin.initialize_app()
 db = firestore.client()
 
@@ -27,7 +28,7 @@ def run_add(chat_id, text):
         "payer": core[2].strip().lower(),
         "timestamp": firestore.SERVER_TIMESTAMP
     }
-    
+
     owed_amounts = {}
     split_count = 0
     running_sum = float(0)
@@ -50,11 +51,10 @@ def run_add(chat_id, text):
     if running_sum == amount and split_count != 0:
         return constants.ERROR_SUM_MISMATCH
     if split_count != 0:
-        debt_each = (amount-running_sum)/(split_count + 1)
+        debt_each = (amount - running_sum) / (split_count + 1)
         for debtor in owed_amounts:
             if owed_amounts[debtor] == 0:
                 owed_amounts[debtor] = debt_each
-    
 
     transactions = get_transactions(chat_id)
     update_time, trans_ref = transactions.add(details)
@@ -74,7 +74,7 @@ def run_list(chat_id, text):
         parsed_transactions.append(doc.to_dict())
     if len(parsed_transactions) == 0:
         return constants.ERROR_EMPTY_LIST
-    
+
     output = "Transaction List\n"
     counter = 1
     for transaction in parsed_transactions:
@@ -86,11 +86,11 @@ def run_list(chat_id, text):
 
 def run_detail(chat_id, text):
     transactions = get_transactions(chat_id)
-    id, to_get = get_at(transactions, text.strip())
-    if not id:
+    trans_id, to_get = get_at(transactions, text.strip())
+    if not trans_id:
         return constants.ERROR_GENERIC
     output = f"{to_get['name']}, {to_get['amount']}, {to_get['payer']}"
-    debtors = transactions.document(id).collection("debtors").stream()
+    debtors = transactions.document(trans_id).collection("debtors").stream()
     for debtor in debtors:
         curr = debtor.to_dict()
         output += f"\n{curr['name']}, {curr['amount']}"
@@ -100,14 +100,14 @@ def run_detail(chat_id, text):
 
 def run_delete(chat_id, text):
     transactions = get_transactions(chat_id)
-    id, to_get = get_at(transactions, text.strip())
-    if not id:
+    trans_id, to_get = get_at(transactions, text.strip())
+    if not trans_id:
         return constants.ERROR_GENERIC
-    debtors = transactions.document(id).collection("debtors")
+    debtors = transactions.document(trans_id).collection("debtors")
     debts_ptr = debtors.stream()
     for debtor in debts_ptr:
         debtors.document(debtor.id).delete()
-    transactions.document(id).delete()
+    transactions.document(trans_id).delete()
 
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
@@ -117,45 +117,47 @@ def run_settle(chat_id, text):
     trans_ptr = transactions.stream()
     balances = {}
     for trans_ref in trans_ptr:
-        transaction = trans_ref.to_dict()
-        if transaction['payer'] in balances:
-            balances[transaction['payer']] += transaction['amount']
-        else:
-            balances[transaction['payer']] = transaction['amount']
         debtors = transactions.document(trans_ref.id).collection("debtors")
         debts_ptr = debtors.stream()
+        total = 0
         for debt_ref in debts_ptr:
             debt = debt_ref.to_dict()
             if debt['name'] in balances:
                 balances[debt['name']] -= debt['amount']
             else:
                 balances[debt['name']] = -1 * debt['amount']
+            total += debt['amount']
             # debtors.document(debt_ref.id).delete()
+        transaction = trans_ref.to_dict()
+        if transaction['payer'] in balances:
+            balances[transaction['payer']] += total
+        else:
+            balances[transaction['payer']] = total
         # transactions.document(trans_ref.id).delete()
     print(balances)
     if not balances:
         return constants.ERROR_EMPTY_LIST
 
-    creditorsq = []
-    debtorsq = []
+    creditors = []
+    debtors = []
     for person in balances:
         if balances[person] > 0:
-            creditorsq.append((person, balances[person]))
+            creditors.append((person, balances[person]))
         elif balances[person] < 0:
-            debtorsq.append((person, abs(balances[person])))
-    creditorsq.sort(key=lambda x: x[1], reverse=True)
-    debtorsq.sort(key=lambda y: y[1])
-    debtorsq = deque(debtorsq)
+            debtors.append((person, abs(balances[person])))
+    creditors.sort(key=lambda x: x[1], reverse=True)
+    debtors.sort(key=lambda y: y[1])
+    debtors = deque(debtors)
 
     output = {}
-    for creditor, amount in creditorsq:
+    for creditor, amount in creditors:
         curr = amount
-        while curr > 0:
-            debtor, other = debtorsq.pop()
+        while curr > 0 and len(debtors) > 0:
+            debtor, other = debtors.pop()
             if other >= curr:
                 value = curr
                 if other > curr:
-                    debtorsq.append((debtor, other - curr))
+                    debtors.append((debtor, other - curr))
                 curr = 0
             else:
                 value = other
@@ -172,7 +174,7 @@ def run_settle(chat_id, text):
     final = "Here's the final tally!\n"
     for person in output:
         final += f"\n{person}: {output[person]}"
-    
+
     return final
 
 
@@ -197,4 +199,4 @@ def get_at(transactions, index):
         parsed_transactions.append((doc.id, doc.to_dict()))
     if len(parsed_transactions) > sn:
         return None, None
-    return parsed_transactions[sn-1]
+    return parsed_transactions[sn - 1]
