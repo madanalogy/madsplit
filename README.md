@@ -44,7 +44,7 @@ You can then reference the list index to delete a transaction or view more detai
 ```
 
 Finally once you're happy with the transactions recorded. Use `/settle` to calculate the final tally!
-- This operation will also remove all transaction data stored.
+- The `/settle` operation will also remove all transaction data stored.
 
 
 ## How it works
