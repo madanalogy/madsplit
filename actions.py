@@ -60,12 +60,12 @@ def run_add(chat_id, text):
     update_time, trans_ref = transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
     for debtor in owed_amounts:
-        debt_ref.add({"name": debtor, "amount": owed_amounts[debtor]})
+        debt_ref.add({"name": debtor.lower(), "amount": owed_amounts[debtor]})
 
     return "Added successfully! Use /list if you want to see all pending transactions"
 
 
-def run_list(chat_id, text):
+def run_list(chat_id):
     transactions = get_transactions(chat_id)
     docs = transactions.order_by("timestamp").stream()
     parsed_transactions = []
@@ -112,7 +112,7 @@ def run_delete(chat_id, text):
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
-def run_settle(chat_id, text):
+def run_settle(chat_id):
     transactions = get_transactions(chat_id)
     trans_ptr = transactions.stream()
     balances = {}
@@ -127,14 +127,13 @@ def run_settle(chat_id, text):
             else:
                 balances[debt['name']] = -1 * debt['amount']
             total += debt['amount']
-            # debtors.document(debt_ref.id).delete()
+            debtors.document(debt_ref.id).delete()
         transaction = trans_ref.to_dict()
         if transaction['payer'] in balances:
             balances[transaction['payer']] += total
         else:
             balances[transaction['payer']] = total
-        # transactions.document(trans_ref.id).delete()
-    print(balances)
+        transactions.document(trans_ref.id).delete()
     if not balances:
         return constants.ERROR_EMPTY_LIST
 

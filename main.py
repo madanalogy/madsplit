@@ -47,13 +47,13 @@ def get_response(chat_id, text):
     if text.startswith("/add"):
         return actions.run_add(chat_id, text[len("/add"):])
     if text.startswith("/list"):
-        return actions.run_list(chat_id, text[len("/list"):])
+        return actions.run_list(chat_id)
     if text.startswith("/detail"):
         return actions.run_detail(chat_id, text[len("/detail"):])
     if text.startswith("/delete"):
         return actions.run_delete(chat_id, text[len("/delete"):])
     if text.startswith("/settle"):
-        return actions.run_settle(chat_id, text[len("/settle"):])
+        return actions.run_settle(chat_id)
     if text.startswith("/help"):
         return constants.INSTRUCTIONS
     return constants.ERROR_GENERIC
