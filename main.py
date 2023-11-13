@@ -57,7 +57,7 @@ def get_response(chat_id, text):
     if text.startswith("/settle"):
         return actions.run_settle(chat_id)
     if text.startswith("/help"):
-        return constants.INSTRUCTIONS
+        return constants.INTRO
     return constants.ERROR_GENERIC
 
 
