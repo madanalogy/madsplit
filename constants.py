@@ -25,7 +25,7 @@ Mary
 Bob
 John
 
-Bob was gonna cab back with Mary but John asked if they could add a stop:
+Bob was gonna cab back with Mary but John asked if they could drop him off along the way:
 /add Cab Ride, 42.50, Bob
 John, 7.50
 Mary'''

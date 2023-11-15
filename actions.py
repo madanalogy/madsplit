@@ -16,6 +16,7 @@ def run_add(chat_id, text):
     if len(lines) < 2:
         return constants.ERROR_ADD_FORMAT
     core = lines[0].split(",")
+    print(core)
     if len(core) != 3:
         return constants.ERROR_ADD_FORMAT
     amount = core[1].strip()
@@ -23,6 +24,7 @@ def run_add(chat_id, text):
         return constants.ERROR_PRECONDITION
     amount = float(amount)
     payer = core[2].strip().lower(),
+    print(payer)
     details = {
         "name": core[0].strip().lower(),
         "amount": amount,
