@@ -22,10 +22,11 @@ def run_add(chat_id, text):
     if not is_valid_amount(amount):
         return constants.ERROR_PRECONDITION
     amount = float(amount)
+    payer = core[2].strip().lower(),
     details = {
         "name": core[0].strip().lower(),
         "amount": amount,
-        "payer": core[2].strip().lower(),
+        "payer": payer,
         "timestamp": firestore.SERVER_TIMESTAMP
     }
 
@@ -36,22 +37,28 @@ def run_add(chat_id, text):
         parsed = line.split(",")
         if not parsed or len(parsed) > 2:
             return constants.ERROR_ADD_FORMAT
+        debtor = parsed[0].strip().lower()
         if len(parsed) == 2:
             owed = parsed[1].strip()
             if not is_valid_amount(owed):
                 return constants.ERROR_PRECONDITION
             owed = float(owed)
-            owed_amounts[parsed[0].strip()] = owed
+            owed_amounts[debtor] = owed
             running_sum += owed
         else:
-            owed_amounts[parsed[0].strip()] = 0
+            if debtor == payer:
+                return constants.ERROR_PRECONDITION
+            owed_amounts[debtor] = 0
             split_count += 1
     if running_sum > amount:
         return constants.ERROR_SUM_MISMATCH
     if running_sum == amount and split_count != 0:
         return constants.ERROR_SUM_MISMATCH
     if split_count != 0:
-        debt_each = (amount - running_sum) / (split_count + 1)
+        if payer in owed_amounts:
+            debt_each = (amount - running_sum) / (split_count)
+        else:
+            debt_each = (amount - running_sum) / (split_count + 1)
         for debtor in owed_amounts:
             if owed_amounts[debtor] == 0:
                 owed_amounts[debtor] = debt_each
@@ -60,7 +67,7 @@ def run_add(chat_id, text):
     update_time, trans_ref = transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
     for debtor in owed_amounts:
-        debt_ref.add({"name": debtor.lower(), "amount": owed_amounts[debtor]})
+        debt_ref.add({"name": debtor, "amount": owed_amounts[debtor]})
 
     return "Added successfully! Use /list if you want to see all pending transactions"
 

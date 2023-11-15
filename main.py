@@ -40,15 +40,17 @@ async def process(request):
         return
     chat_id = update.message.chat.id
     response = get_response(chat_id, update.message.text)
+    if response == "":
+        return
     await bot.sendMessage(chat_id=chat_id, text=response)
 
 
 def get_response(chat_id, text):
     print(f"Received message: {text}")
     if not text:
-        return
+        return ""
     clean = text.replace("@madsplit_bot", "")
-    if clean.startswith("/start"):
+    if clean.startswith("/start") or clean.startswith("/help"):
         return constants.INTRO
     if clean.startswith("/add"):
         return actions.run_add(chat_id, clean[len("/add"):])
@@ -60,8 +62,8 @@ def get_response(chat_id, text):
         return actions.run_delete(chat_id, clean[len("/delete"):])
     if clean.startswith("/settle"):
         return actions.run_settle(chat_id)
-    if clean.startswith("/help"):
-        return constants.INTRO
+    if clean.startswith("/examples"):
+        return constants.EXAMPLES
     return constants.ERROR_GENERIC
 
 
