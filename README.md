@@ -13,26 +13,36 @@ Try it out here: [t.me/madsplit_bot](https://t.me/madsplit_bot)
 
 ### Examples
 ```
-/add Dinner, 456, John
-Andy, 123
-Bob, 78.25
+John paid for dinner, everyone pays exactly what they ordered:
+/add Dinner, 242, John
+Andy, 62
+Bob, 78
 
+Bob paid for drinks, evenly split amongst all parties:
 /add Drinks, 654, Bob
-Andy, 99.5
+Andy
 John
-Mary
 
-/add Brunch, 99, Andy
+Andy paid for breakfast, and boy was he not happy about that:
+/add Breakfast, 120, Andy
+Andy, 10
+Mary
 Bob
 John
+
+Bob was gonna cab back with Mary but John asked if they could add a stop:
+/add Cab Ride, 42.50, Bob
+John, 7.50
+Mary
 ```
 
 Keying in `/list` should then give you an output like this:
 
 ```
-1. Dinner, 456.0, John
-2. Drinks, 654.0, Bob
-3. Brunch, 99.0, Andy
+1. Dinner, $242, John
+2. Drinks, $654, Bob
+3. Breakfast, $120, Andy
+4. Cab Ride, $42.50, Bob
 ```
 
 You can then reference the list index to delete a transaction or view more details about it.

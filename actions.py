@@ -67,6 +67,8 @@ def run_add(chat_id, text):
     update_time, trans_ref = transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
     for debtor in owed_amounts:
+        if debtor == payer:
+            continue
         debt_ref.add({"name": debtor, "amount": owed_amounts[debtor]})
 
     return "Added successfully! Use /list if you want to see all pending transactions"
@@ -79,7 +81,8 @@ def run_list(chat_id):
     counter = 1
     for doc in docs:
         doc_dict = doc.to_dict()
-        output += f"\n{counter}. {doc_dict['name'].title()}, {doc_dict['amount']}, {doc_dict['payer'].title()}"
+        amount = "{:.2f}".format(round(doc_dict['amount'], 2))
+        output += f"\n{counter}. {doc_dict['name'].title()}, ${amount}, {doc_dict['payer'].title()}"
         counter += 1
     if counter == 1:
         return constants.ERROR_EMPTY_LIST
