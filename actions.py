@@ -23,7 +23,7 @@ def run_add(chat_id, text):
     if not is_valid_amount(amount):
         return constants.ERROR_PRECONDITION
     amount = float(amount)
-    payer = core[2].strip().lower(),
+    [payer] = core[2].strip().lower(),
     print(payer)
     details = {
         "name": core[0].strip().lower(),
