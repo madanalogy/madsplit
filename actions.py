@@ -77,13 +77,13 @@ def run_add(chat_id, text):
 
 def run_list(chat_id):
     transactions = get_transactions(chat_id)
-    docs = transactions.order_by("timestamp").stream()
+    trans_ptr = transactions.order_by("timestamp").stream()
     output = "Use /detail followed by a number from the list below to see full transaction info\n"
     counter = 1
-    for doc in docs:
-        doc_dict = doc.to_dict()
-        amount = "{:.2f}".format(round(doc_dict['amount'], 2))
-        output += f"\n{counter}. {doc_dict['name'].title()}, ${amount}, {doc_dict['payer'].title()}"
+    for trans_ref in trans_ptr:
+        transaction = trans_ref.to_dict()
+        amount = "{:.2f}".format(round(transaction['amount'], 2))
+        output += f"\n{counter}. {transaction['name'].title()}, ${amount}, {transaction['payer'].title()}"
         counter += 1
     if counter == 1:
         return constants.ERROR_EMPTY_LIST
@@ -98,12 +98,13 @@ def run_detail(chat_id, text):
     trans_id, transaction = get_at(transactions, int(text))
     if trans_id == 0:
         return constants.ERROR_SUM_MISMATCH
-    output = f"{transaction['name'].title()}, {transaction['amount']}, {transaction['payer'].title()}"
+    amount = "{:.2f}".format(round(transaction['amount'], 2))
+    output = f"{transaction['name'].title()}, ${amount}, {transaction['payer'].title()}"
     debtors = transactions.document(trans_id).collection("debtors").stream()
     for debtor in debtors:
         curr = debtor.to_dict()
         amt_str = "{:.2f}".format(round(curr['amount'], 2))
-        output += f"\n{curr['name'].title()}, {amt_str}"
+        output += f"\n{curr['name'].title()}, ${amt_str}"
 
     return output
 
@@ -112,7 +113,7 @@ def run_delete(chat_id, text):
     if not text or int(text) < 1:
         return constants.ERROR_GENERIC
     transactions = get_transactions(chat_id)
-    trans_id, unused = get_at(transactions, int(text))
+    trans_id, transaction = get_at(transactions, int(text))
     if trans_id == 0:
         return constants.ERROR_SUM_MISMATCH
     debtors = transactions.document(trans_id).collection("debtors")
@@ -150,9 +151,9 @@ def run_settle(chat_id):
         return constants.ERROR_EMPTY_LIST
 
     output = calculate(balances)
-    final = "Here's the final tally!\n"
+    final = "Here's the final tally!"
     for person in output:
-        final += f"\n{person.title()}: {output[person]}"
+        final += f"\n\n{person.title()}: {output[person]}"
 
     return final
 
