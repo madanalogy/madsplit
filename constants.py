@@ -25,9 +25,9 @@ Mary
 Bob
 John
 
-Bob was gonna cab back with Mary but John asked if they could drop him off along the way:
+Bob takes a cab back with Mary and adding John's stop was only $7:
 /add Cab Ride, 42.50, Bob
-John, 7.50
+John, 7
 Mary'''
 
 COMMANDS = '''- /add to add a transaction to the list.

@@ -16,17 +16,16 @@ def run_add(chat_id, text):
     if len(lines) < 2:
         return constants.ERROR_ADD_FORMAT
     core = lines[0].split(",")
-    print(core)
     if len(core) != 3:
         return constants.ERROR_ADD_FORMAT
     amount = core[1].strip()
     if not is_valid_amount(amount):
         return constants.ERROR_PRECONDITION
     amount = float(amount)
-    [payer] = core[2].strip().lower(),
-    print(payer)
+    title = core[0].strip().lower()
+    payer = core[2].strip().lower()
     details = {
-        "name": core[0].strip().lower(),
+        "name": title,
         "amount": amount,
         "payer": payer,
         "timestamp": firestore.SERVER_TIMESTAMP
@@ -73,7 +72,7 @@ def run_add(chat_id, text):
             continue
         debt_ref.add({"name": debtor, "amount": owed_amounts[debtor]})
 
-    return "Added successfully! Use /list if you want to see all pending transactions"
+    return title + " added successfully! Use /list if you want to see all pending transactions"
 
 
 def run_list(chat_id):
