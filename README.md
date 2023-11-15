@@ -62,10 +62,10 @@ Finally once you're happy with the transactions recorded. Use `/settle` to calcu
 1. If a debtor's amount is specified in a transaction, that share will first be deducted from the amount.
 2. The remaining amount will be split evenly amongst the payer and all debtors that do not have an amount specified.
     - The payer will not be included in the even split only if the payer is also a debtor with an amount specified.
-3. The /settle command will then calculate all relationships between transactions to come up with a final tally.
+3. The `/settle`` command will then calculate all relationships between transactions to come up with a final tally.
 
 ### Tips
 - Make sure the spelling of each name is consistent across transactions. The name is not case sensitive.
 - Amounts support up to 2 decimal digits. There might be a small rounding difference in division.
 - If the payer is also a debtor in the same transaction, there must be an amount indicated.
-- Each transaction requires at least 1 debtor.
+- Each transaction requires at least 1 debtor. Otherwise what's the point honestly.
