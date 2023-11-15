@@ -34,6 +34,7 @@ COMMANDS = '''- /add to add a transaction to the list.
 - /list to view the current pending transactions.
 - /detail followed by a number from /list to show details of a transaction.
 - /delete followed by a number from /list to remove a transaction.
+- /preview to calculate a settlement for pending transactions without removing them.
 - /settle to settle up all pending transactions. This will remove all transactions.
 - /help to bring up the available instructions and format.'''
 

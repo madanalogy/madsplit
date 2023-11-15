@@ -62,6 +62,8 @@ def get_response(chat_id, text):
         return actions.run_delete(chat_id, clean[len("/delete"):])
     if clean.startswith("/settle"):
         return actions.run_settle(chat_id)
+    if clean.startswith("/preview"):
+        return actions.run_settle(chat_id, isDelete=False)
     if clean.startswith("/examples"):
         return constants.EXAMPLES
     return constants.ERROR_GENERIC

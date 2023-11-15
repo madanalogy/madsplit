@@ -24,12 +24,6 @@ def run_add(chat_id, text):
     amount = float(amount)
     title = core[0].strip().lower()
     payer = core[2].strip().lower()
-    details = {
-        "name": title,
-        "amount": amount,
-        "payer": payer,
-        "timestamp": firestore.SERVER_TIMESTAMP
-    }
 
     owed_amounts = {}
     split_count = 0
@@ -65,6 +59,12 @@ def run_add(chat_id, text):
                 owed_amounts[debtor] = debt_each
 
     transactions = get_transactions(chat_id)
+    details = {
+        "name": title,
+        "amount": amount,
+        "payer": payer,
+        "timestamp": firestore.SERVER_TIMESTAMP
+    }
     update_time, trans_ref = transactions.add(details)
     debt_ref = trans_ref.collection("debtors")
     for debtor in owed_amounts:
@@ -125,7 +125,7 @@ def run_delete(chat_id, text):
     return "Deleted successfully! Use /list if you want to see all pending transactions"
 
 
-def run_settle(chat_id):
+def run_settle(chat_id, isDelete=True):
     transactions = get_transactions(chat_id)
     trans_ptr = transactions.stream()
     balances = {}
@@ -140,13 +140,15 @@ def run_settle(chat_id):
             else:
                 balances[debt['name']] = -1 * debt['amount']
             total += debt['amount']
-            debtors.document(debt_ref.id).delete()
+            if isDelete:
+                debtors.document(debt_ref.id).delete()
         transaction = trans_ref.to_dict()
         if transaction['payer'] in balances:
             balances[transaction['payer']] += total
         else:
             balances[transaction['payer']] = total
-        transactions.document(trans_ref.id).delete()
+        if isDelete:
+            transactions.document(trans_ref.id).delete()
     if not balances:
         return constants.ERROR_EMPTY_LIST
 

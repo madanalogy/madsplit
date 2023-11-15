@@ -9,6 +9,7 @@ Try it out here: [t.me/madsplit_bot](https://t.me/madsplit_bot)
 - `/list` to view the current pending transactions.
 - `/detail` followed by a number from `/list` to show details of a transaction.
 - `/delete` followed by a number from `/list` to remove a transaction.
+- `/preview` to calculate a settlement for pending transactions without removing them.
 - `/settle` to settle up all pending transactions. This will remove all transactions.
 - `/help` to print out the general help information
 
@@ -62,7 +63,7 @@ Finally once you're happy with the transactions recorded. Use `/settle` to calcu
 1. If a debtor's amount is specified in a transaction, that share will first be deducted from the amount.
 2. The remaining amount will be split evenly amongst the payer and all debtors that do not have an amount specified.
     - The payer will not be included in the even split only if the payer is also a debtor with an amount specified.
-3. The `/settle`` command will then calculate all relationships between transactions to come up with a final tally.
+3. The `/settle` command will then calculate all relationships between transactions to come up with a final tally.
 
 ### Tips
 - Make sure the spelling of each name is consistent across transactions. The name is not case sensitive.
