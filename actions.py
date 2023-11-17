@@ -1,3 +1,5 @@
+import math
+
 import constants
 import firebase_admin
 from firebase_admin import firestore
@@ -29,6 +31,8 @@ def run_add(chat_id, text):
     split_count = 0
     running_sum = float(0)
     for line in lines[1:]:
+        if line.strip() == "":
+            continue
         parsed = line.split(",")
         if not parsed or len(parsed) > 2:
             return constants.ERROR_ADD_FORMAT
@@ -152,12 +156,19 @@ def run_settle(chat_id, isDelete=True):
     if not balances:
         return constants.ERROR_EMPTY_LIST
 
-    output = calculate(balances)
-    final = "Here's the final tally!"
+    output, balance = calculate(balances)
+    if isDelete:
+        final = "Here's the final tally!"
+    else:
+        final = "Here's a preview of the final tally"
     for person in output:
         final += f"\n\n{person.title()}: {output[person]}"
 
+    if math.floor(balance) != 0:
+        final += f"\n\nSeems like there was some leftover? Balance: ${balance}"
+
     return final
+
 
 def calculate(balances):
     creditors = []
@@ -172,8 +183,10 @@ def calculate(balances):
     debtors = deque(debtors)
 
     output = {}
+    balance = 0
     for creditor, amount in creditors:
         curr = amount
+        balance += amount
         while curr > 0 and len(debtors) > 0:
             debtor, other = debtors.pop()
             if other >= curr:
@@ -184,6 +197,7 @@ def calculate(balances):
             else:
                 value = other
                 curr -= other
+            balance -= value
             value_str = "{:.2f}".format(round(value, 2))
             if debtor in output:
                 output[debtor] += f", Pay {creditor.title()} ${value_str}"
@@ -193,7 +207,7 @@ def calculate(balances):
                 output[creditor] += f", Get ${value_str} from {debtor.title()}"
             else:
                 output[creditor] = f"Get ${value_str} from {debtor.title()}"
-    return output
+    return output, balance
 
 
 def is_valid_amount(value):

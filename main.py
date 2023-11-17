@@ -66,7 +66,7 @@ def get_response(chat_id, text):
         return actions.run_settle(chat_id, isDelete=False)
     if clean.startswith("/examples"):
         return constants.EXAMPLES
-    return constants.ERROR_GENERIC
+    return ""
 
 
 load_dotenv()
